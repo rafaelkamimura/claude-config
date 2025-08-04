@@ -1,0 +1,26 @@
+{
+  "autoUpdates": true,
+  "editorMode": "vim",
+  "tipsHistory": {
+    "new-user-warmup": 1,
+    "shift-enter": 5,
+    "memory-command": 6,
+    "theme-command": 7,
+    "prompt-queue": 8,
+    "enter-to-steer-in-relatime": 9,
+    "todo-list": 10,
+    "ide-upsell-external-terminal": 11,
+    "# for memory": 12,
+    "install-github-app": 20,
+    "permissions": 21,
+    "drag-and-drop-images": 22,
+    "double-esc": 23,
+    "continue": 24,
+    "custom-commands": 25,
+    "shift-tab": 26
+  },
+  "autoConnectIde": true,
+  "shiftEnterKeyBindingInstalled": true,
+  "hasCompletedOnboarding": true,
+  "lastOnboardingVersion": "1.0.62"
+}
