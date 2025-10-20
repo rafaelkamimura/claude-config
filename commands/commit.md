@@ -8,135 +8,118 @@ Intelligent git commit system that stages only task-related changes and generate
 - Exclude any mention of AI/agent tools
 - Maintain clean git history
 
-## Workflow
+## Execution Steps
 
-### Phase 1: Task Context Discovery
-1. **Check for Task History**
-   ```bash
-   # Find most recent task file
-   task_file=$(ls -t .claude/task-history/*.md 2>/dev/null | head -1)
-   ```
-   - If no task history found: STOP → "No task history found. Use /task-init first or specify files manually."
+### Step 1: Check for Task Context
 
-2. **Extract Task Information**
-   - Parse task file for:
-     - Task title/objective
-     - Files mentioned in optimized prompt
-     - Success criteria
-     - Technologies involved
+Use Bash tool to find most recent task file:
+- Command: `ls -t .claude/task-history/*.md 2>/dev/null | head -1`
+- Description: "Find most recent task history file"
 
-### Phase 2: Git Status Analysis
-1. **Check Repository Status**
-   ```bash
-   git status --porcelain
-   ```
-   
-2. **Categorize Changes**
-   - Modified files (M)
-   - Added files (A, ??)
-   - Deleted files (D)
-   - Renamed files (R)
+If no task file exists, output: "No task history found. Proceeding with manual file selection."
 
-3. **Identify Task-Related Files**
-   Using task context, identify files that:
-   - Match file patterns from task description
-   - Are in directories mentioned in task
-   - Match technology/framework patterns from task
-   - Were created/modified after task start time
+If task file exists:
+- Use Read tool to read the task file
+- Extract: task title, objective, files mentioned, success criteria
 
-### Phase 3: Selective Staging
-1. **Present Changes for Review**
-   ```markdown
-   ## Task: [Task Title]
-   
-   ### Definitely Related (will stage):
-   - file1.js (modified) - implements feature X
-   - file2.test.js (added) - tests for feature X
-   
-   ### Possibly Related (confirm):
-   - config.json (modified) - may contain task settings
-   - README.md (modified) - may document task changes
-   
-   ### Unrelated (will skip):
-   - .env (modified) - local environment changes
-   - debug.log (added) - temporary debug file
-   ```
+### Step 2: Analyze Git Status
 
-2. **STOP** → "Review staging plan. Adjust? (y to modify, n to proceed):"
-   - If y: Allow user to specify which files to include/exclude
-   - If n: Proceed with staging
+Use Bash tool to check git status:
+- Command: `git status --porcelain`
+- Description: "Check git repository status"
 
-3. **Stage Selected Files**
-   ```bash
-   # Stage only task-related files
-   git add [selected files]
-   ```
+Parse output to categorize:
+- Modified files (M prefix)
+- Added files (A or ?? prefix)
+- Deleted files (D prefix)
+- Renamed files (R prefix)
 
-### Phase 4: Commit Message Generation
-1. **Analyze Changes for Message**
-   Use Task agents to analyze staged changes:
-   - What functionality was added/modified/fixed
-   - What problem was solved
-   - What improvement was made
+### Step 3: Identify Task-Related Files
 
-2. **Generate Commit Message**
-   Format:
-   ```
-   [type]: [concise description]
+Based on task context (if available), identify files that:
+- Match file patterns from task description
+- Are in directories mentioned in task
+- Match technology/framework patterns from task
 
-   [optional body with details]
-   
-   [optional footer with references]
-   ```
-   
-   Types:
-   - `feat`: New feature
-   - `fix`: Bug fix
-   - `docs`: Documentation only
-   - `style`: Formatting, missing semicolons, etc.
-   - `refactor`: Code change that neither fixes a bug nor adds a feature
-   - `perf`: Performance improvement
-   - `test`: Adding missing tests
-   - `chore`: Changes to build process or auxiliary tools
+If no task context, consider all changed files as candidates.
 
-3. **Clean Message**
-   Remove any references to:
-   - Claude, ChatGPT, Copilot, or any AI
-   - Agents, automation, or AI-assistance
-   - Generated code or automated changes
-   - Task-init or command system
+### Step 4: Present Staging Plan
 
-4. **Present Commit Message**
-   ```markdown
-   ## Proposed Commit Message:
-   ```
-   [generated message]
-   ```
-   ```
+Output a categorized list of changes:
+```markdown
+## Task: [Task Title or "Manual Commit"]
 
-5. **STOP** → "Use this commit message? (y/yes to commit, n to edit, abort to cancel):"
-   - If n: STOP → "Enter your commit message:"
-   - If abort: Unstage files and exit
-   - If y/yes: Proceed to commit
+### Will stage:
+- file1.js (modified) - implements feature X
+- file2.test.js (added) - tests for feature X
 
-### Phase 5: Commit Execution
-1. **Create Commit**
-   ```bash
-   git commit -m "[final message]"
-   ```
+### Possibly related (confirm):
+- config.json (modified) - may contain task settings
 
-2. **Update Task History**
-   Append to task file:
-   ```markdown
-   ## Commits
-   - [commit hash]: [commit message] ([timestamp])
-   ```
+### Will skip:
+- .env (modified) - local environment
+- debug.log (added) - temporary file
+```
 
-3. **Show Result**
-   ```bash
-   git log --oneline -1
-   git status
-   ```
+Then output: "Review staging plan. Adjust? (Reply with files to add/remove, or 'ok' to proceed):"
+
+WAIT for user response.
+
+### Step 5: Stage Files
+
+Use Bash tool to stage selected files:
+- Command: `git add [space-separated file paths]`
+- Description: "Stage task-related files"
+
+### Step 6: Generate Commit Message
+
+Based on staged changes, generate a conventional commit message:
+
+Format:
+```
+[type]: [concise description]
+
+[optional body with details]
+```
+
+Types: feat, fix, docs, style, refactor, perf, test, chore
+
+IMPORTANT: Never mention AI, agents, Claude, automation, or AI-assistance in the message.
+
+### Step 7: Present Commit Message
+
+Output:
+```markdown
+## Proposed Commit Message:
+```
+[generated message]
+```
+```
+
+Then output: "Use this commit message? (Reply 'yes' to commit, 'no' to edit, 'abort' to cancel):"
+
+WAIT for user response.
+
+If user says 'no', ask: "Enter your commit message:"
+WAIT for user's message.
+
+If user says 'abort':
+- Use Bash tool to unstage: `git reset`
+- Exit command
+
+### Step 8: Create Commit
+
+If user approves:
+
+1. Use Bash tool to create commit:
+   - Command: `git commit -m "[message]"`
+   - Description: "Create git commit"
+
+2. Use Bash tool to show result:
+   - Command: `git log --oneline -1 && git status`
+   - Description: "Show commit result and status"
+
+3. If task history file exists, append commit info using Edit tool
 
 ## Smart Detection Rules
 

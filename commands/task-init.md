@@ -9,211 +9,186 @@ Streamline task initialization by:
 - Preventing regressions through context awareness
 - Maintaining task history and memory checkpoints
 
-## Workflow
+## Execution Steps
 
-### Phase 1: Context Loading
-1. **Load Project Documentation**
-   - Read project CLAUDE.md if exists: `cat CLAUDE.md 2>/dev/null || echo "No project CLAUDE.md found"`
-   - Read global CLAUDE.md if exists: `cat /Users/nagawa/CLAUDE.md 2>/dev/null || echo "No global CLAUDE.md found"`
-   - Read local CLAUDE.md if exists: `cat /Users/nagawa/.claude/CLAUDE.md 2>/dev/null || echo "No local CLAUDE.md found"`
-   - Read README.md if exists: `cat README.md 2>/dev/null || echo "No README.md found"`
-   - List documentation files: `find . -maxdepth 2 -name "*.md" -not -path "./.git/*" -not -path "./node_modules/*" | head -20`
+### Step 1: Load Project Context
 
-2. **Check MCP Memory Availability**
-   - Attempt to list MCP resources to check for memory tools
-   - Note: Memory functionality will be used if available, otherwise proceed without it
+Use Read tool to load these files (if they don't exist, continue without them):
+1. Read `./CLAUDE.md` (project-specific instructions)
+2. Read `/Users/nagawa/CLAUDE.md` (global instructions)
+3. Read `/Users/nagawa/.claude/CLAUDE.md` (local instructions)
+4. Read `./README.md` (project overview)
 
-3. **Gather Project Structure**
-   - Identify project type: `ls -la | head -20`
-   - Check for package.json, go.mod, requirements.txt, Cargo.toml, etc.
-   - Identify test framework and build tools
+Use Glob tool to find additional documentation:
+- Pattern: `*.md`
+- Limit to 20 results
 
-### Phase 2: Prompt Collection
-1. **Present Context Summary**
-   - Show loaded documentation summary
-   - Display project type and key technologies
-   - List available MCP tools and resources
+Use Bash tool to identify project type:
+- Command: `ls -la | head -20`
+- Description: "List files to identify project type"
+- Look for: package.json, go.mod, requirements.txt, Cargo.toml, pyproject.toml
 
-2. **STOP** → "Context loaded. Please provide your task/prompt:"
-   - Wait for user to provide their task description
+### Step 2: Present Context and Get Task
 
-### Phase 3: Prompt Optimization
-1. **Analyze Original Prompt** using parallel Task agents:
-   - **backend-architect**: Analyze architectural implications
-   - **test-automator**: Identify testing requirements
-   - **code-reviewer**: Check for completeness and clarity
-   - **security-auditor**: Identify security considerations
+Output a context summary showing:
+- Project type detected (if any)
+- Documentation files found
+- Key technologies identified
 
-2. **Generate Optimized Prompt**
-   Create enhanced prompt including:
-   - Clear success criteria
-   - Regression prevention checks
-   - Testing requirements
-   - Security considerations
-   - Performance implications
-   - Architecture alignment
-   - Project-specific conventions from CLAUDE.md
+Then output: "Context loaded. Please provide your task/prompt:"
 
-3. **Present Optimization**
-   ```markdown
-   ## Original Prompt
-   [user's original prompt]
-   
-   ## Optimized Prompt
-   [enhanced prompt with all considerations]
-   
-   ### Success Criteria
-   - [specific measurable outcomes]
-   
-   ### Regression Prevention
-   - [checks to ensure no breaking changes]
-   
-   ### Testing Requirements
-   - [unit, integration, e2e test requirements]
-   ```
+WAIT for user's next message containing their task description.
 
-4. **STOP** → "Approve optimized prompt? (y/yes/ok to proceed, n to revise):"
-   - If n: Ask for specific changes and re-optimize
-   - If y/yes/ok: Proceed to Phase 4
+### Step 3: Analyze Task with Specialized Agents
 
-### Phase 4: Task Tracking
-1. **Create Task History Directory**
-   ```bash
-   mkdir -p .claude/task-history
-   ```
+CRITICAL: Use Task tool to launch ALL 4 agents IN PARALLEL (send a single message with 4 Task tool invocations):
 
-2. **Save Task Record**
-   Create `.claude/task-history/[timestamp]-[task-slug].md`:
+1. Task tool call:
+   - subagent_type: "backend-architect"
+   - prompt: "Analyze the architectural implications and requirements for this task: [insert user's task here]. Identify architecture patterns, dependencies, and structural considerations."
+
+2. Task tool call:
+   - subagent_type: "test-automator"
+   - prompt: "Identify comprehensive testing requirements for this task: [insert user's task here]. Specify what unit tests, integration tests, and E2E tests are needed."
+
+3. Task tool call:
+   - subagent_type: "code-reviewer"
+   - prompt: "Review this task description for completeness and clarity: [insert user's task here]. Identify what additional details or considerations should be included."
+
+4. Task tool call:
+   - subagent_type: "security-auditor"
+   - prompt: "Identify security considerations and requirements for this task: [insert user's task here]. Specify what security measures, validations, or checks are needed."
+
+Wait for all 4 agents to complete before proceeding.
+
+### Step 4: Generate and Present Optimized Prompt
+
+Based on all agent responses, create an enhanced prompt that includes:
+- Clear objective from original task
+- Architecture considerations from backend-architect
+- Testing requirements from test-automator
+- Clarity improvements from code-reviewer
+- Security requirements from security-auditor
+
+Format and output as:
+```markdown
+## Original Prompt
+[user's original prompt]
+
+## Optimized Prompt
+[enhanced prompt with all considerations]
+
+### Success Criteria
+- [specific measurable outcomes]
+
+### Regression Prevention
+- [checks to ensure no breaking changes]
+
+### Testing Requirements
+- [unit, integration, e2e test requirements]
+
+### Security Considerations
+- [security measures needed]
+```
+
+Then output: "Review the optimized prompt above. Approve? (Reply 'yes' to proceed, 'no' to revise):"
+
+WAIT for user approval.
+
+### Step 5: Create Task History
+
+If user approves (responds with yes/y/ok):
+
+1. Use Bash tool:
+   - Command: `mkdir -p .claude/task-history`
+   - Description: "Create task history directory"
+
+2. Use Write tool to create file at `.claude/task-history/[timestamp]-[slug].md` with content:
    ```markdown
    # Task: [Task Title]
    **Date:** [ISO timestamp]
    **Project:** [current directory]
    **Status:** Started
-   
+
    ## Original Prompt
    [original user prompt]
-   
+
    ## Optimized Prompt
    [optimized prompt]
-   
+
    ## Context
    - Project Type: [detected type]
    - Key Technologies: [list]
-   - MCP Tools Available: [list]
-   
+
    ## Success Criteria
    [from optimization]
-   
+
    ## Regression Checks
    [from optimization]
-   
+
    ## Testing Requirements
    [from optimization]
    ```
 
-3. **Update .gitignore**
-   ```bash
-   grep -q "^.claude/task-history/" .gitignore || echo ".claude/task-history/" >> .gitignore
-   ```
+3. Use Bash tool:
+   - Command: `grep -q "^.claude/task-history/" .gitignore || echo ".claude/task-history/" >> .gitignore`
+   - Description: "Add task history to gitignore"
 
-### Phase 5: Memory Checkpoint (if available)
-1. **Check for MCP Memory Tools**
-   - If memory tools available (create_entities, add_observations, etc.)
-   
-2. **Create Task Entity**
-   ```json
-   {
-     "name": "task_[timestamp]",
-     "entityType": "task",
-     "observations": [
-       "Project: [project name]",
-       "Objective: [task summary]",
-       "Date: [ISO timestamp]",
-       "Technologies: [list]"
-     ]
-   }
-   ```
+### Step 6: Initialize Todo List
 
-3. **Create Project Entity** (if not exists)
-   ```json
-   {
-     "name": "project_[project_name]",
-     "entityType": "project",
-     "observations": [
-       "Path: [full path]",
-       "Type: [project type]",
-       "Last task: [timestamp]"
-     ]
-   }
-   ```
+Use TodoWrite tool to create initial task breakdown based on the optimized prompt.
+Break the task into 3-7 concrete, actionable steps with:
+- content: Imperative form (e.g., "Implement user authentication")
+- activeForm: Present continuous (e.g., "Implementing user authentication")
+- status: "pending" for all items initially
 
-4. **Create Relation**
-   ```json
-   {
-     "from": "task_[timestamp]",
-     "to": "project_[project_name]",
-     "relationType": "belongs_to"
-   }
-   ```
+### Step 7: Display Execution Summary
 
-### Phase 6: Execution
-1. **Initialize Todo List**
-   Use TodoWrite to create initial task breakdown based on optimized prompt
+Output:
+```markdown
+## Task Initialized Successfully
 
-2. **Display Execution Plan**
-   ```markdown
-   ## Ready to Execute
-   
-   Task initialized with:
-   - [X] Context loaded from [N] sources
-   - [X] Prompt optimized with [N] considerations
-   - [X] Task history saved to .claude/task-history/
-   - [X] Memory checkpoint created (if available)
-   - [X] Todo list initialized
-   
-   Starting execution with optimized prompt...
-   ```
+- Context loaded from [N] sources
+- Prompt optimized with agent analysis
+- Task history saved to .claude/task-history/[filename]
+- Todo list initialized with [N] items
 
-3. **Begin Implementation**
-   - Execute the optimized prompt
-   - Use specialized agents as needed
-   - Track progress with TodoWrite
-   - Run validation checks from success criteria
+Starting execution with optimized prompt...
+```
+
+### Step 8: Begin Implementation
+
+Execute the optimized prompt by:
+1. Mark the first todo item as "in_progress" using TodoWrite
+2. Use appropriate specialized agents as needed (via Task tool)
+3. Update todo status as you complete each item using TodoWrite
+4. Run validation checks from success criteria
+5. Follow the testing requirements specified
+6. Apply security considerations identified
 
 ## Error Handling
 
-### Missing Documentation
+If documentation files don't exist:
 - Continue with available context
-- Note missing files in task history
+- Note missing files when presenting context summary
 - Suggest creating CLAUDE.md if not present
 
-### MCP Memory Unavailable
-- Log as "Memory checkpoint skipped - MCP not available"
-- Continue with file-based history only
+If user rejects optimized prompt 3 times:
+- Offer to proceed with original prompt
+- Ask what specific concerns they have
 
-### Prompt Rejection Loop
-- After 3 rejections, offer to proceed with original prompt
-- Save rejection reasons in task history
+If agents fail to respond:
+- Proceed with partial optimization
+- Note which agent failed in optimized prompt
 
-### Project Detection Failure
-- Ask user to specify project type
-- Update task history with manual specification
-
-## Command Shortcuts
-- `/task-init` - Start full workflow
-- Context is always loaded fresh to ensure accuracy
-- Previous task history can be reviewed in .claude/task-history/
-
-## Best Practices
-1. Always check for existing CLAUDE.md files
-2. Respect project-specific conventions
-3. Include regression prevention in every task
-4. Create comprehensive test requirements
-5. Document task history for future reference
-6. Use memory checkpoints for cross-session continuity
+If no git repository exists:
+- Skip gitignore update
+- Skip task history creation (or create without git integration)
+- Continue with in-memory tracking only
 
 ## Notes
-- Task history is local to each project
-- Memory entities persist globally across projects
-- Optimized prompts improve task success rate
-- Regression checks prevent breaking changes
+
+- Task history is saved locally to each project
+- Optimized prompts improve task success rate by including all considerations upfront
+- Always use TodoWrite to track progress through implementation
+- Context is loaded fresh each time to ensure accuracy
