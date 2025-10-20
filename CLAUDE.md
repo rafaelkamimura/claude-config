@@ -88,11 +88,127 @@ Before any commit or significant change:
 
 ## Tool Usage Guidelines
 
+### Claude Code Iterations UI (New Feature - 2025-10-18)
+
+Claude Code now features an **Iterations UI** that provides better visibility into multi-step workflows.
+
+#### How to Optimize for Iterations UI
+
+**Structure Work in Clear Phases**:
+```markdown
+✅ GOOD - Clear iteration boundaries:
+1. First, I'll analyze the requirements
+   [Use Read/Grep tools, present findings]
+
+2. Now I'll implement the feature
+   [Use Edit/Write tools, make changes]
+
+3. Finally, I'll test the changes
+   [Use Bash tool for tests, show results]
+```
+
+**Provide Progress Updates**:
+```markdown
+✅ Output clear phase transitions:
+"Analysis complete. Moving to implementation..."
+"Implementation done. Running tests..."
+```
+
+**Group Related Tool Calls**:
+```markdown
+✅ Execute related operations together:
+- Read all necessary files in one iteration
+- Make all related edits in one iteration
+- Run all tests in one iteration
+
+❌ Don't alternate unnecessarily:
+- Read file 1
+- Edit file 1
+- Read file 2
+- Edit file 2
+```
+
+**Use TodoWrite for Visibility**:
+```markdown
+✅ Create todos at start of complex tasks
+✅ Update todo status between iterations
+✅ User can see progress in UI
+```
+
+**Benefits of Iterations UI**:
+- Users see clear progress through multi-step tasks
+- Easier to understand what's happening at each stage
+- Better context for when to interrupt or provide feedback
+- Natural breakpoints for user interaction
+
+**Best Practices**:
+1. Start with analysis/planning iteration
+2. Group implementation work logically
+3. End with validation/testing iteration
+4. Use TodoWrite to show overall progress
+5. Output clear transition messages between phases
+
 ### Tool Selection Hierarchy
 1. **MCP tools** (`mcp__*`) when available
 2. **Native Claude tools** (Read, Edit, Grep, Glob, etc.)
 3. **Specialized agents** (Task tool with appropriate subagent)
 4. **Bash commands** (only when necessary)
+
+### Explicit Tool Invocation Rules
+**CRITICAL**: Always use explicit tool names in instructions, not bash examples or pseudocode.
+
+**WRONG** (Documentation style):
+```markdown
+- Read project files: `cat CLAUDE.md`
+- Check git status: `git status --porcelain`
+```
+
+**CORRECT** (Executable instructions):
+```markdown
+- Use Read tool to read `CLAUDE.md`
+- Use Bash tool with command: `git status --porcelain`, description: "Check git status"
+```
+
+### Parallel Agent Invocation
+When invoking multiple agents, be explicit about parallel execution:
+
+**WRONG**:
+```markdown
+Use these agents:
+- backend-architect: Check architecture
+- test-automator: Check tests
+```
+
+**CORRECT**:
+```markdown
+Use Task tool to launch agents IN PARALLEL (single message with multiple Task tool invocations):
+
+1. Task tool call:
+   - subagent_type: "backend-architect"
+   - prompt: "Analyze architecture for: [specific task]"
+
+2. Task tool call:
+   - subagent_type: "test-automator"
+   - prompt: "Identify test requirements for: [specific task]"
+
+Wait for all agents to complete before proceeding.
+```
+
+### User Interaction Points
+Be explicit about when to wait for user input:
+
+**WRONG**:
+```markdown
+STOP → "Enter your choice:"
+```
+
+**CORRECT**:
+```markdown
+Output: "Enter your choice:"
+WAIT for user's next message.
+```
+
+Or use AskUserQuestion tool for structured input.
 
 ### Search and Analysis Patterns
 - Use `Grep` for content searching
@@ -116,6 +232,171 @@ When using the Task tool, select appropriate subagent:
 - `python-pro`: Python-specific optimizations
 - `debugger`: Error analysis and troubleshooting
 - `code-reviewer`: Code quality reviews
+
+## Writing Slash Commands
+
+### Command Structure Principles
+
+Slash commands in `~/.claude/commands/` should be **executable instructions**, not documentation.
+
+#### Bad Command (Documentation Style)
+```markdown
+### Phase 1: Load Context
+1. **Read files**
+   ```bash
+   cat CLAUDE.md
+   ls -la
+   ```
+2. **Use agents**: backend-architect, test-automator
+```
+
+#### Good Command (Executable Style)
+```markdown
+### Step 1: Load Context
+
+Use Read tool to read `CLAUDE.md` file.
+
+Use Bash tool:
+- Command: `ls -la`
+- Description: "List project files"
+
+Use Task tool to launch agents IN PARALLEL (single message with 2 Task invocations):
+1. Task(subagent_type="backend-architect", prompt="...")
+2. Task(subagent_type="test-automator", prompt="...")
+
+Wait for all agents to complete.
+```
+
+### Command Writing Checklist
+
+**Tool Invocations**:
+- ✅ Use explicit tool names: "Use Read tool", "Use Bash tool", "Use Task tool"
+- ✅ Specify all required parameters clearly
+- ✅ Include command descriptions for Bash tool
+- ❌ Don't write bash examples in code blocks as instructions
+- ❌ Don't use pseudocode or abstract function calls
+
+**Agent Invocations**:
+- ✅ Explicitly state "Use Task tool to launch agents IN PARALLEL"
+- ✅ Specify exact subagent_type and prompt for each agent
+- ✅ State "Wait for all agents to complete" when needed
+- ❌ Don't just list agent names without tool invocation syntax
+- ❌ Don't assume I'll infer parallel execution
+
+**User Interaction**:
+- ✅ Use "Output: [message]" followed by "WAIT for user's next message"
+- ✅ Or use AskUserQuestion tool for structured input
+- ✅ Be explicit about what you're waiting for
+- ❌ Don't use ambiguous "STOP →" markers
+- ❌ Don't assume I know when to pause
+
+**Structure**:
+- ✅ Use flat "Step 1, Step 2" structure (not deep nesting)
+- ✅ Keep steps concrete and actionable
+- ✅ Include error handling instructions
+- ❌ Don't use complex "Phase 1.2.3" hierarchies
+- ❌ Don't write essays - keep it directive
+
+### Example: Well-Structured Command
+
+```markdown
+# Command Name
+
+Brief description of what this command does.
+
+## Execution Steps
+
+### Step 1: Gather Information
+
+Use Read tool to read `./config.json`.
+
+If file doesn't exist, output: "No config found" and skip to Step 3.
+
+### Step 2: Analyze with Agents
+
+Use Task tool to launch 2 agents IN PARALLEL (single message):
+
+1. Task tool call:
+   - subagent_type: "security-auditor"
+   - prompt: "Check config for security issues: [config content]"
+
+2. Task tool call:
+   - subagent_type: "code-reviewer"
+   - prompt: "Review config structure: [config content]"
+
+Wait for both agents to complete.
+
+### Step 3: Present Results
+
+Output the analysis results.
+
+Then output: "Proceed with changes? (yes/no)"
+
+WAIT for user's next message.
+
+### Step 4: Execute Changes
+
+If user said yes:
+- Use Edit tool to modify config
+- Use Bash tool: `git add config.json`, description: "Stage config changes"
+
+If user said no:
+- Output: "Changes cancelled"
+- Exit command
+
+## Error Handling
+
+If Read tool fails: Continue without config
+If agent fails: Proceed with partial analysis
+If git command fails: Warn user and continue
+```
+
+### Common Mistakes to Avoid
+
+**Mistake 1: Documentation Instead of Instructions**
+```markdown
+❌ BAD:
+"Run tests with pytest: `pytest --cov`"
+
+✅ GOOD:
+"Use Bash tool with command: `pytest --cov`, description: 'Run tests with coverage'"
+```
+
+**Mistake 2: Unclear Agent Invocation**
+```markdown
+❌ BAD:
+"Analyze using: backend-architect, security-auditor"
+
+✅ GOOD:
+"Use Task tool to launch 2 agents IN PARALLEL (single message with 2 Task invocations):
+1. Task(subagent_type='backend-architect', prompt='...')
+2. Task(subagent_type='security-auditor', prompt='...')
+Wait for both agents to complete."
+```
+
+**Mistake 3: Ambiguous User Interaction**
+```markdown
+❌ BAD:
+"STOP → Ask user for input"
+
+✅ GOOD:
+"Output: 'Enter your choice (1-3):'
+WAIT for user's next message with their choice."
+```
+
+**Mistake 4: Too Many Nested Phases**
+```markdown
+❌ BAD:
+### Phase 1: Setup
+  #### Sub-phase 1.1: Context
+    ##### Step 1.1.1: Files
+      ###### Action 1.1.1.a: Read
+
+✅ GOOD:
+### Step 1: Read Context Files
+### Step 2: Analyze Context
+### Step 3: Present Summary
+```
 
 ## Security & Quality Standards
 
@@ -335,7 +616,14 @@ For critical issues:
 
 ---
 
-**Last Updated**: 2025-01-16
-**Version**: 2.0.0
+**Last Updated**: 2025-10-20
+**Version**: 2.1.0
+
+**Changelog**:
+- v2.1.0 (2025-10-20):
+  - Added comprehensive slash command writing guidelines with explicit tool invocation rules
+  - Added parallel agent execution patterns and user interaction semantics
+  - Added Claude Code Iterations UI optimization guidelines (new feature from 2025-10-18)
+- v2.0.0 (2025-01-16): Initial comprehensive global instructions
 
 *This file provides universal defaults for Claude Code sessions. Project-specific CLAUDE.md files override these settings.*
