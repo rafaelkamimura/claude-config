@@ -5,7 +5,7 @@
       "Bash(cat:*)"
     ]
   },
-  "alwaysThinkingEnabled": true,
+  "alwaysThinkingEnabled": false,
   "feedbackSurveyState": {
     "lastShownTime": 1754064061183
   }

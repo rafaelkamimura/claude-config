@@ -1,6 +1,6 @@
-# Claude Code Skills for gefin-backend
+# Claude Code Skills
 
-This directory contains custom skills for exploring and analyzing databases in the gefin-backend project.
+This directory contains custom skills for database exploration, GitLab CLI troubleshooting, and development workflow automation.
 
 ## Available Skills
 
@@ -9,6 +9,16 @@ This directory contains custom skills for exploring and analyzing databases in t
 **Purpose:** Comprehensive MariaDB database exploration and documentation tool.
 
 **Location:** `.claude/skills/mariadb-database-explorer.md`
+
+**Use When:** Need to explore, document, or analyze MariaDB database schemas.
+
+### gitlab-cli-troubleshooter
+
+**Purpose:** Diagnose and fix GitLab CLI (`glab`) configuration issues, set up smart shell functions.
+
+**Location:** `.claude/skills/gitlab-cli-troubleshooter.md`
+
+**Use When:** Experiencing `glab` 404 errors, authentication issues, or want to set up project-aware CLI functions.
 
 ## How to Use Skills
 
@@ -49,9 +59,13 @@ Use mariadb-database-explorer skill with DATABASE_NAME="corporativo" and SAMPLE_
 - `OUTPUT_FORMAT`: "json", "markdown", or "both" (default: "both")
 - `STORE_IN_MCP`: Store in Memory MCP (default: true)
 
+### gitlab-cli-troubleshooter
+
+**No parameters required** - skill is interactive and will prompt for necessary information.
+
 ## Prerequisites
 
-Before using these skills, ensure:
+### For mariadb-database-explorer
 
 1. **Environment Variables** (`.env` file):
    ```
@@ -75,6 +89,31 @@ Before using these skills, ensure:
 
 3. **Database Access**: User must have SELECT permissions on target database
 
+### For gitlab-cli-troubleshooter
+
+1. **GitLab CLI (`glab`)**: Version 1.70+ installed
+   ```bash
+   # Check if glab is installed
+   which glab
+   glab version
+
+   # Install if needed (macOS)
+   brew install glab
+   ```
+
+2. **Personal Access Token**: GitLab PAT with `api` scope
+
+3. **jq**: JSON processor for formatting output
+   ```bash
+   # macOS
+   brew install jq
+
+   # Linux
+   apt-get install jq
+   ```
+
+4. **Shell**: zsh or bash (skill provides zsh examples)
+
 ## Output Files
 
 The `mariadb-database-explorer` skill generates:
@@ -93,7 +132,9 @@ The `mariadb-database-explorer` skill generates:
 
 ## Example Usage
 
-### Explore the art1025 database
+### mariadb-database-explorer
+
+#### Explore the art1025 database
 ```
 Use mariadb-database-explorer skill with DATABASE_NAME="art1025"
 ```
@@ -103,28 +144,55 @@ Use mariadb-database-explorer skill with DATABASE_NAME="art1025"
 - `SCHEMA_art1025.md`
 - Memory MCP entities created
 
-### Quick exploration without data samples
+#### Quick exploration without data samples
 ```
 Use mariadb-database-explorer skill with DATABASE_NAME="cobranca" and SAMPLE_SIZE=0
 ```
 
-### Generate only markdown documentation
+#### Generate only markdown documentation
 ```
 Use mariadb-database-explorer skill with DATABASE_NAME="corporativo", OUTPUT_FORMAT="markdown", STORE_IN_MCP=false
 ```
 
+### gitlab-cli-troubleshooter
+
+#### Fix glab 404 errors
+```
+Use gitlab-cli-troubleshooter skill
+```
+
+The skill will:
+1. Diagnose authentication and API access
+2. Identify project path/ID issues
+3. Test direct API workarounds
+4. Install smart shell functions (if needed)
+
+#### Just install smart glab functions
+```
+I need smart glab functions for my GitLab instance
+```
+
+The skill will:
+- Skip diagnostics
+- Go directly to function installation
+- Set up `gli`, `glv`, `gln`, `glapi` commands
+
 ## Troubleshooting
 
-### Skill not found
+### General Issues
+
+#### Skill not found
 
 **Problem:** Claude says "Skill not found" or doesn't list the skill
 
 **Solution:**
-1. Ensure you're in the gefin-backend project directory
-2. Check that `.claude/skills/mariadb-database-explorer.md` exists
-3. Restart Claude Code or refresh the workspace
+1. Check that skill `.md` file exists in `.claude/skills/`
+2. Restart Claude Code or refresh the workspace
+3. Verify you're in a directory with `.claude/skills/` accessible
 
-### Connection errors
+### mariadb-database-explorer Issues
+
+#### Connection errors
 
 **Problem:** "Failed to connect to MariaDB server"
 
@@ -137,7 +205,7 @@ Use mariadb-database-explorer skill with DATABASE_NAME="corporativo", OUTPUT_FOR
    mysql -h $MARIADB_HOST -P $MARIADB_PORT -u $MARIADB_USER -p
    ```
 
-### Permission errors
+#### Permission errors
 
 **Problem:** "Insufficient permissions to access database"
 
@@ -146,7 +214,7 @@ Use mariadb-database-explorer skill with DATABASE_NAME="corporativo", OUTPUT_FOR
 2. Check database exists: `SHOW DATABASES;`
 3. Contact database administrator for access
 
-### Large database timeouts
+#### Large database timeouts
 
 **Problem:** Skill times out on databases with 100+ tables
 
@@ -154,6 +222,34 @@ Use mariadb-database-explorer skill with DATABASE_NAME="corporativo", OUTPUT_FOR
 1. Use `SAMPLE_SIZE=0` to skip data sampling
 2. Specify a subset of tables when prompted
 3. Analyze the top 20 largest tables only
+
+### gitlab-cli-troubleshooter Issues
+
+#### "404 Not Found" errors
+
+**Problem:** `glab mr list -R` returns 404
+
+**Solution:** This is expected on custom GitLab instances - the skill will set up API-based workarounds.
+
+#### Authentication failures
+
+**Problem:** `glab auth status` shows not authenticated
+
+**Solutions:**
+1. Run: `glab auth login --hostname YOUR_GITLAB_HOST`
+2. Ensure PAT has `api` scope
+3. Verify network access to GitLab instance
+
+#### Functions not loading
+
+**Problem:** `gli` command not found after setup
+
+**Solutions:**
+1. Open **new terminal window** (don't just `source ~/.zshrc`)
+2. Check for alias conflicts: `alias | grep gli`
+3. Verify syntax: `zsh -n ~/.zshrc`
+
+For detailed troubleshooting, see the skill file itself.
 
 ## Contributing New Skills
 
@@ -180,7 +276,49 @@ For issues or questions:
 2. Review error messages and troubleshooting section
 3. Consult the gefin-backend team
 
+## Skill Development
+
+### Creating New Skills
+
+To add a new skill:
+
+1. Create `.md` file in `.claude/skills/`
+2. Follow existing skill structure:
+   - Purpose and prerequisites
+   - Step-by-step execution instructions
+   - Common issues and solutions
+   - Testing checklist
+3. Update this README
+4. Test thoroughly before committing
+
+### Skill Structure Template
+
+```markdown
+# Skill Name
+
+Brief description
+
+## Purpose
+What problem does this solve?
+
+## When to Use This Skill
+List of scenarios
+
+## Prerequisites
+Required tools and configuration
+
+## Execution Steps
+### Step 1: First Action
+Detailed instructions...
+
+## Common Issues and Solutions
+Known problems and fixes
+
+## Testing Checklist
+Verification steps
+```
+
 ---
 
-**Last Updated**: 2025-01-23
-**Maintained By**: gefin-backend team
+**Last Updated**: 2025-10-21
+**Skills**: 2 (mariadb-database-explorer, gitlab-cli-troubleshooter)
