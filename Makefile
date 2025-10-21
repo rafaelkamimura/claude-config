@@ -1,17 +1,19 @@
-.PHONY: help install update sync status clean test
+.PHONY: help install pull-local sync status clean test install-project-skills list-skills
 
 # Default target
 help:
 	@echo "Claude Code Configuration Management"
 	@echo ""
 	@echo "Available targets:"
-	@echo "  make install    - Install configuration from repo to ~/.claude"
-	@echo "  make update     - Update repo with current ~/.claude configuration"
-	@echo "  make sync       - Commit and push changes to GitHub"
-	@echo "  make status     - Show git status and configuration diff"
-	@echo "  make clean      - Remove backup files"
-	@echo "  make test       - Verify configuration files"
-	@echo "  make help       - Show this help message"
+	@echo "  make install               - Install configuration from repo to ~/.claude"
+	@echo "  make pull-local            - Update repo with current ~/.claude configuration"
+	@echo "  make sync                  - Commit and push changes to GitHub"
+	@echo "  make install-project-skills PATH=/path/to/project - Install skills to project"
+	@echo "  make list-skills           - List available skills in repo"
+	@echo "  make status                - Show git status and configuration diff"
+	@echo "  make clean                 - Remove backup files"
+	@echo "  make test                  - Verify configuration files"
+	@echo "  make help                  - Show this help message"
 
 # Install configuration from repo to ~/.claude
 install:
@@ -42,10 +44,9 @@ install:
 	@echo "  - ~/.claude/agents/ (subagents)"
 	@echo "  - ~/.claude/skills/ (global skills)"
 
-# Update repo with current ~/.claude configuration
-update:
-	@echo "Updating repository with local configuration..."
-	@echo "Copying from ~/.claude to repository..."
+# Update repo with current ~/.claude configuration (pull from local)
+pull-local:
+	@echo "Pulling configuration from ~/.claude to repository..."
 	@cp ~/.claude/CLAUDE.md ./
 	@[ -f ~/.claude/settings.json ] && cp ~/.claude/settings.json ./ || echo "No settings.json"
 	@[ -f ~/.claude.json ] && cp ~/.claude.json ./ || echo "No .claude.json"
@@ -56,8 +57,11 @@ update:
 	@echo ""
 	@make status
 
+# Legacy alias for pull-local
+update: pull-local
+
 # Commit and push changes to GitHub
-sync: update
+sync: pull-local
 	@echo "Syncing to GitHub..."
 	@git add .
 	@if git diff --cached --quiet; then \
@@ -89,6 +93,51 @@ clean:
 	@find . -name ".DS_Store" -delete
 	@echo "✓ Backup files removed"
 
+# Install skills to a specific project
+install-project-skills:
+	@if [ -z "$(PATH)" ]; then \
+		echo "Error: Please provide PATH variable"; \
+		echo "Usage: make install-project-skills PATH=/path/to/project"; \
+		exit 1; \
+	fi
+	@if [ ! -d "$(PATH)" ]; then \
+		echo "Error: Directory $(PATH) does not exist"; \
+		exit 1; \
+	fi
+	@echo "Installing skills to project: $(PATH)"
+	@mkdir -p "$(PATH)/.claude/skills"
+	@if [ -d skills ]; then \
+		cp -r skills/* "$(PATH)/.claude/skills/"; \
+		echo "✓ Skills installed to $(PATH)/.claude/skills/"; \
+		echo ""; \
+		echo "Skills installed:"; \
+		ls -1 "$(PATH)/.claude/skills/" | sed 's|^|  - |'; \
+	else \
+		echo "No skills directory found in repository"; \
+		exit 1; \
+	fi
+	@echo ""
+	@echo "Project skills directory: $(PATH)/.claude/skills/"
+
+# List all available skills
+list-skills:
+	@echo "Available skills in repository:"
+	@echo ""
+	@if [ -d skills ]; then \
+		for skill in skills/*; do \
+			if [ -d "$$skill" ]; then \
+				echo "📁 $$(basename $$skill)/ (directory)"; \
+				[ -f "$$skill/SKILL.md" ] && echo "   └─ SKILL.md" || true; \
+				[ -f "$$skill/README.md" ] && echo "   └─ README.md" || true; \
+				ls -1 "$$skill"/*.py 2>/dev/null | sed 's|.*/|   └─ |' || true; \
+			elif [ -f "$$skill" ]; then \
+				echo "📄 $$(basename $$skill)"; \
+			fi; \
+		done; \
+	else \
+		echo "No skills directory found"; \
+	fi
+
 # Verify configuration files
 test:
 	@echo "Verifying configuration files..."
@@ -104,4 +153,4 @@ test:
 	@echo "Slash commands available:"
 	@[ -d commands ] && ls -1 commands/*.md | sed 's|commands/||g' | sed 's|.md||g' | sed 's|^|  /|' || echo "  None found"
 	@echo ""
-	@[ -d skills ] && echo "Global skills available:" && ls -1 skills/ | sed 's|^|  |' || echo "No global skills"
+	@make list-skills
