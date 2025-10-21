@@ -9,85 +9,89 @@ Generates comprehensive merge request documentation in PT-BR compliance, analyzi
 - Create structured, review-ready merge requests
 - Never mention AI/automation tools
 
-## Workflow
+## Execution Steps
 
-### Phase 1: Branch Analysis
-1. **Get Current Branch**
-   ```bash
-   current_branch=$(git branch --show-current)
-   ```
-   - If not on a branch: STOP → "Not on a branch. Please checkout your feature branch first."
+### Step 1: Analyze Branch
 
-2. **Identify Base Branch**
-   ```bash
-   # Try to find merge base with common branches
-   for base in main master develop development staging; do
-     if git rev-parse --verify $base >/dev/null 2>&1; then
-       merge_base=$(git merge-base HEAD $base 2>/dev/null)
-       [ -n "$merge_base" ] && base_branch=$base && break
-     fi
-   done
-   ```
-   - If no base found: STOP → "What is the target branch for this MR? (main/master/develop):"
+Use Bash tool to get current branch:
+- Command: `git branch --show-current`
+- Description: "Get current branch name"
 
-3. **Extract Task Context**
-   ```bash
-   # Check for task history
-   task_file=$(ls -t .claude/task-history/*.md 2>/dev/null | head -1)
-   ```
-   - Parse task for objective and context
+If not on a branch, output: "Not on a branch. Please checkout your feature branch first." and exit.
 
-### Phase 2: Commit Analysis
-1. **Get Commit List**
-   ```bash
-   # Get all commits from branch divergence
-   git log --oneline $base_branch..HEAD
-   ```
+Use Bash tool to identify base branch:
+- Command: `for base in main master develop development staging; do git rev-parse --verify $base >/dev/null 2>&1 && echo $base && break; done`
+- Description: "Find base branch"
 
-2. **Analyze Each Commit**
-   ```bash
-   # Get detailed commit info
-   git log --format="%H|%s|%b|%an|%ad" --date=short $base_branch..HEAD
-   ```
-   - Extract commit hash, subject, body, author, date
-   - Categorize by type (feat, fix, chore, docs, etc.)
+If no base found:
+Output: "What is the target branch for this MR? (main/master/develop):"
+WAIT for user's response.
 
-3. **Get Commit Statistics**
-   ```bash
-   # For each commit
-   git show --stat --format="" $commit_hash
-   ```
-   - Files changed
-   - Lines added/removed
+Use Bash tool to find task history:
+- Command: `ls -t .claude/task-history/*.md 2>/dev/null | head -1`
+- Description: "Find most recent task file"
 
-### Phase 3: File Change Analysis
-1. **Overall Statistics**
-   ```bash
-   # Total diff statistics
-   git diff --stat $base_branch..HEAD
-   ```
-   - Total files modified/created/deleted
-   - Total insertions and deletions
+If task file exists, use Read tool to read it and parse for objective and context.
 
-2. **Detailed File Changes**
-   ```bash
-   # List all changed files with status
-   git diff --name-status $base_branch..HEAD
-   ```
-   - A: Added files
-   - M: Modified files
-   - D: Deleted files
-   - R: Renamed files
+### Step 2: Analyze Commits
 
-3. **Analyze Change Content**
-   Use Task agents to analyze:
-   - **backend-architect**: Architecture impacts
-   - **code-reviewer**: Code quality aspects
-   - **test-automator**: Test coverage
-   - **database-optimizer**: Database changes
-   - **security-auditor**: Security implications
+Use Bash tool to get commit list:
+- Command: `git log --oneline [base_branch]..HEAD`
+- Description: "Get all commits from branch divergence"
 
-### Phase 4: MR Content Generation
+Use Bash tool to get detailed commit info:
+- Command: `git log --format="%H|%s|%b|%an|%ad" --date=short [base_branch]..HEAD`
+- Description: "Get detailed commit information"
+
+Parse output to extract:
+- Commit hash, subject, body, author, date
+- Categorize by conventional commit type (feat, fix, chore, docs, etc.)
+
+Use Bash tool to get commit statistics:
+- Command: `git show --stat --format="" [commit_hash]`
+- Description: "Get files changed per commit"
+
+### Step 3: Analyze File Changes
+
+Use Bash tool to get overall statistics:
+- Command: `git diff --stat [base_branch]..HEAD`
+- Description: "Get total diff statistics"
+
+Use Bash tool to get detailed file changes:
+- Command: `git diff --name-status [base_branch]..HEAD`
+- Description: "List all changed files with status"
+
+Categorize changes:
+- A: Added files
+- M: Modified files
+- D: Deleted files
+- R: Renamed files
+
+Use Task tool to launch 5 agents IN PARALLEL (single message with 5 Task tool invocations):
+
+1. Task tool call:
+   - subagent_type: "backend-architect"
+   - prompt: "Analyze architecture impacts of these changes: [file list and diffs]"
+
+2. Task tool call:
+   - subagent_type: "code-reviewer"
+   - prompt: "Review code quality aspects of these changes: [file list and diffs]"
+
+3. Task tool call:
+   - subagent_type: "test-automator"
+   - prompt: "Assess test coverage of these changes: [file list and diffs]"
+
+4. Task tool call:
+   - subagent_type: "database-optimizer"
+   - prompt: "Identify database changes and implications: [file list and diffs]"
+
+5. Task tool call:
+   - subagent_type: "security-auditor"
+   - prompt: "Identify security implications of these changes: [file list and diffs]"
+
+Wait for all 5 agents to complete.
+
+### Step 4: Generate MR Content
 1. **Generate PT-BR Content Structure**
    ```markdown
    # Merge Request #[number]: [Título Descritivo]
@@ -194,38 +198,39 @@ Generates comprehensive merge request documentation in PT-BR compliance, analyzi
    - Serviços adicionados
    - Dependências atualizadas
 
-### Phase 5: Review and Output
-1. **Clean Content**
-   Remove any references to:
-   - Claude, AI, agents, automation
-   - Generated content markers
-   - Task-init system references
+### Step 5: Review and Save MR Draft
 
-2. **Present Draft**
-   ```markdown
-   ## Merge Request Draft Generated
-   
-   File saved to: .claude/mr-drafts/[timestamp]-[branch].md
-   
-   Preview:
-   [First 50 lines of MR content]
-   ```
+Clean content by removing any references to:
+- Claude, AI, agents, automation
+- Generated content markers
+- Task-init system references
 
-3. **STOP** → "Review MR draft. Options: (edit/save/copy/discard):"
-   - edit: Open in editor
-   - save: Keep as-is
-   - copy: Copy to clipboard
-   - discard: Delete draft
+Present draft to user:
 
-4. **Save Final Version**
-   ```bash
-   # Save to project
-   mkdir -p .claude/mr-drafts
-   cat > .claude/mr-drafts/[timestamp]-[branch].md
-   
-   # Update gitignore
-   grep -q "^.claude/mr-drafts/" .gitignore || echo ".claude/mr-drafts/" >> .gitignore
-   ```
+Output: "## Merge Request Draft Generated
+
+File will be saved to: .claude/mr-drafts/[timestamp]-[branch].md
+
+Preview:
+[First 50 lines of MR content]"
+
+Output: "Review MR draft. Options: (edit/save/copy/discard):"
+WAIT for user's choice.
+
+If user chooses 'edit': Offer to make specific changes
+If user chooses 'save' or default:
+
+Use Bash tool to create directory:
+- Command: `mkdir -p .claude/mr-drafts`
+- Description: "Create MR drafts directory"
+
+Use Write tool to save MR draft to `.claude/mr-drafts/[timestamp]-[branch].md`
+
+Use Bash tool to update gitignore:
+- Command: `grep -q "^.claude/mr-drafts/" .gitignore || echo ".claude/mr-drafts/" >> .gitignore`
+- Description: "Add MR drafts to gitignore"
+
+If user chooses 'discard': Exit without saving
 
 ## Smart Detection Features
 

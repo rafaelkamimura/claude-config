@@ -9,67 +9,85 @@ AI-powered code review that checks for anti-patterns, suggests refactoring, and 
 - Verify naming conventions and style
 - Generate review checklist
 
-## Workflow
+## Execution Steps
 
-### Phase 1: Review Scope
-1. **STOP** → "Select review scope:"
-   ```
-   1. Changed files only - Review uncommitted changes
-   2. Staged files - Review staged changes
-   3. Last commit - Review previous commit
-   4. Custom files - Specify files to review
-   5. Full codebase - Complete review (slow)
-   
-   Choose scope (1-5):
-   ```
+### Step 1: Select Review Scope
 
-2. **Review Focus**
-   - STOP → "Review priorities? (all/security/performance/style/architecture):"
-   - STOP → "Strictness level? (lenient/standard/strict):"
-   - STOP → "Include refactoring suggestions? (y/n):"
+Output: "Select review scope:
+1. Changed files only - Review uncommitted changes
+2. Staged files - Review staged changes
+3. Last commit - Review previous commit
+4. Custom files - Specify files to review
+5. Full codebase - Complete review (slow)
 
-### Phase 2: File Analysis
-1. **Gather Changed Files**
-   ```bash
-   # Get changed files
-   git diff --name-only HEAD
-   git diff --staged --name-only
-   ```
+Choose scope (1-5):"
 
-2. **Categorize by Type**
-   ```javascript
-   const fileCategories = {
-     source: ['*.js', '*.ts', '*.py', '*.go'],
-     tests: ['*.test.*', '*.spec.*'],
-     config: ['*.json', '*.yml', '*.toml'],
-     docs: ['*.md', '*.rst'],
-     styles: ['*.css', '*.scss']
-   };
-   ```
+WAIT for user's choice.
 
-### Phase 3: Agent-Based Review
-Deploy specialized agents for different aspects:
+Output: "Review priorities? (all/security/performance/style/architecture):"
+WAIT for user's response.
 
-1. **Code Quality Review**
-   - **code-reviewer**: General code quality
-   - **backend-architect**: Architecture patterns
-   - **security-auditor**: Security issues
-   - **performance-engineer**: Performance concerns
-   - **test-automator**: Test coverage
+Output: "Strictness level? (lenient/standard/strict):"
+WAIT for user's response.
 
-2. **Agent Prompts**
-   ```
-   Review this code for:
-   1. Code smells and anti-patterns
-   2. SOLID principle violations
-   3. Naming consistency
-   4. Error handling
-   5. Performance issues
-   6. Security vulnerabilities
-   7. Test coverage gaps
-   ```
+Output: "Include refactoring suggestions? (y/n):"
+WAIT for user's response.
 
-### Phase 4: Code Quality Checks
+### Step 2: Gather Files for Review
+
+Based on user's scope choice:
+
+Use Bash tool to get changed files:
+- Command: `git diff --name-only HEAD` (for changed files)
+- Or: `git diff --staged --name-only` (for staged files)
+- Or: `git show --name-only --pretty="" HEAD` (for last commit)
+- Description: "Get files for code review"
+
+Categorize files by type:
+- Source: *.js, *.ts, *.py, *.go
+- Tests: *.test.*, *.spec.*
+- Config: *.json, *.yml, *.toml
+- Docs: *.md, *.rst
+- Styles: *.css, *.scss
+
+Use Read tool to read each file that will be reviewed.
+
+### Step 3: Deploy Code Review Agents
+
+Use Task tool to launch 5 agents IN PARALLEL (single message with 5 Task tool invocations):
+
+1. Task tool call:
+   - subagent_type: "code-reviewer"
+   - prompt: "Review this code for general code quality, code smells, anti-patterns, and SOLID principle violations: [file contents]"
+
+2. Task tool call:
+   - subagent_type: "backend-architect"
+   - prompt: "Review architecture patterns and structural design in this code: [file contents]"
+
+3. Task tool call:
+   - subagent_type: "security-auditor"
+   - prompt: "Identify security issues, vulnerabilities, and potential exploits in this code: [file contents]"
+
+4. Task tool call:
+   - subagent_type: "performance-engineer"
+   - prompt: "Analyze performance concerns, bottlenecks, and optimization opportunities in this code: [file contents]"
+
+5. Task tool call:
+   - subagent_type: "test-automator"
+   - prompt: "Assess test coverage gaps and missing test cases for this code: [file contents]"
+
+Wait for all 5 agents to complete before proceeding.
+
+### Step 4: Aggregate Agent Findings
+
+Collect and organize findings from all 5 agents:
+- Security issues (critical, high, medium, low)
+- Performance concerns
+- Architecture violations
+- Code quality issues
+- Test coverage gaps
+
+### Step 5: Analyze Code Quality Patterns
 
 #### Clean Code Principles
 ```javascript
@@ -127,7 +145,7 @@ function calculateDiscount(count) {
 }
 ```
 
-### Phase 5: Anti-Pattern Detection
+### Step 6: Anti-Pattern Detection
 
 #### Code Smells
 ```yaml
@@ -159,7 +177,7 @@ const c = await getMoreData(b);
 console.log(c);
 ```
 
-### Phase 6: Security Review
+### Step 7: Security Review
 
 #### Common Vulnerabilities
 ```javascript
@@ -189,7 +207,7 @@ if (!strongPassword.test(password)) {
 }
 ```
 
-### Phase 7: Performance Review
+### Step 8: Performance Review
 
 #### Performance Issues
 ```javascript
@@ -217,7 +235,7 @@ element.addEventListener('click', handler);
 element.removeEventListener('click', handler);
 ```
 
-### Phase 8: Style and Convention
+### Step 9: Style and Convention
 
 #### Naming Conventions
 ```javascript
@@ -249,7 +267,7 @@ function isValid(value) {
 }
 ```
 
-### Phase 9: Review Report Generation
+### Step 10: Generate Review Report
 
 ```markdown
 # Code Review Report
@@ -356,18 +374,17 @@ const API_KEY = 'sk-1234567890abcdef';
 - [ ] Accessibility considered
 ```
 
-### Phase 10: Auto-Fix Suggestions
+### Step 11: Suggest Auto-Fixes
 
-1. **Safe Auto-Fixes**
-   ```bash
-   # Format code
-   prettier --write .
-   
-   # Fix linting issues
-   eslint --fix .
-   
-   # Remove unused imports
-   ```
+For safe auto-fixes, suggest commands to user:
+
+Use Bash tool for formatting:
+- Command: `prettier --write .`
+- Description: "Format code with prettier"
+
+Use Bash tool for linting:
+- Command: `eslint --fix .`
+- Description: "Auto-fix linting issues"
 
 2. **Refactoring Suggestions**
    ```javascript

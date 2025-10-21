@@ -11,7 +11,7 @@ Environment-aware deployment orchestrator with support for multiple strategies, 
 
 ## Workflow
 
-### Phase 1: Environment Selection
+### Step 1: Environment Selection
 1. **STOP** → "Select deployment target:"
    ```
    1. Development - Local/dev environment
@@ -39,7 +39,7 @@ Environment-aware deployment orchestrator with support for multiple strategies, 
    - STOP → "Enable automatic rollback? (y/n):"
    - STOP → "Send deployment notifications? (y/n):"
 
-### Phase 2: Pre-Deployment Checks
+### Step 2: Pre-Deployment Checks
 1. **Verify Build**
    ```bash
    # Check if build exists
@@ -67,7 +67,7 @@ Environment-aware deployment orchestrator with support for multiple strategies, 
    npm audit --production || safety check
    ```
 
-### Phase 3: Container Deployment
+### Step 3: Container Deployment
 1. **Build Docker Image**
    ```bash
    # Build with version tag
@@ -117,7 +117,7 @@ Environment-aware deployment orchestrator with support for multiple strategies, 
    kubectl rollout status deployment/myapp
    ```
 
-### Phase 4: Serverless Deployment
+### Step 4: Serverless Deployment
 1. **AWS Lambda**
    ```bash
    # Package function
@@ -156,7 +156,7 @@ Environment-aware deployment orchestrator with support for multiple strategies, 
    func azure functionapp publish myapp
    ```
 
-### Phase 5: Blue-Green Deployment
+### Step 5: Blue-Green Deployment
 1. **Setup Blue Environment**
    ```bash
    # Deploy to blue environment
@@ -194,7 +194,7 @@ Environment-aware deployment orchestrator with support for multiple strategies, 
    kubectl delete deployment myapp-green
    ```
 
-### Phase 6: Canary Deployment
+### Step 6: Canary Deployment
 1. **Deploy Canary Version**
    ```bash
    # Deploy with 10% traffic
@@ -225,7 +225,7 @@ Environment-aware deployment orchestrator with support for multiple strategies, 
    done
    ```
 
-### Phase 7: Health Checks
+### Step 7: Health Checks
 1. **Liveness Check**
    ```bash
    # Basic health endpoint
@@ -263,7 +263,7 @@ Environment-aware deployment orchestrator with support for multiple strategies, 
    fi
    ```
 
-### Phase 8: Rollback Procedures
+### Step 8: Rollback Procedures
 1. **Automatic Rollback Triggers**
    ```yaml
    rollback_conditions:
@@ -294,7 +294,7 @@ Environment-aware deployment orchestrator with support for multiple strategies, 
    npm run migrate:down || python manage.py migrate previous_migration
    ```
 
-### Phase 9: Post-Deployment
+### Step 9: Post-Deployment
 1. **Monitoring Setup**
    ```javascript
    // Set up alerts
@@ -339,7 +339,7 @@ Environment-aware deployment orchestrator with support for multiple strategies, 
    - Review error logs
    ```
 
-### Phase 10: Deployment Report
+### Step 10: Deployment Report
 ```markdown
 # Deployment Report
 

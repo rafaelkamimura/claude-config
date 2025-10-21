@@ -11,7 +11,7 @@ Scans for code that needs refactoring, tracks TODO/FIXME comments, prioritizes c
 
 ## Workflow
 
-### Phase 1: Debt Analysis Type
+### Step 1: Debt Analysis Type
 1. **STOP** → "Select technical debt analysis:"
    ```
    1. Quick scan - TODO/FIXME comments only
@@ -29,7 +29,7 @@ Scans for code that needs refactoring, tracks TODO/FIXME comments, prioritizes c
    - STOP → "Create cleanup tasks? (y/n):"
    - STOP → "Track debt trends? (y/n):"
 
-### Phase 2: Code Annotation Scanning
+### Step 2: Code Annotation Scanning
 
 #### TODO/FIXME Detection
 ```bash
@@ -71,7 +71,7 @@ function parseAnnotations(file, content) {
 }
 ```
 
-### Phase 3: Code Quality Analysis
+### Step 3: Code Quality Analysis
 
 #### Complexity Metrics
 ```javascript
@@ -161,7 +161,7 @@ code_smells:
     severity: low
 ```
 
-### Phase 4: Dependency Debt
+### Step 4: Dependency Debt
 
 #### Outdated Dependencies
 ```bash
@@ -205,7 +205,7 @@ depcheck(process.cwd(), {}, (unused) => {
 });
 ```
 
-### Phase 5: Architecture Debt
+### Step 5: Architecture Debt
 
 #### Design Pattern Violations
 ```javascript
@@ -256,7 +256,7 @@ function checkLayerViolations() {
 }
 ```
 
-### Phase 6: Debt Quantification
+### Step 6: Debt Quantification
 
 #### Interest Calculation
 ```javascript
@@ -314,7 +314,7 @@ function calculateDebtInterest(debt) {
 - **Break-even**: 0.6 months
 ```
 
-### Phase 7: Refactoring Plan
+### Step 7: Refactoring Plan
 
 #### Priority Matrix
 ```
@@ -358,7 +358,7 @@ Low  │ Maybe   │ Avoid   │
 - [ ] Automate debt tracking
 ```
 
-### Phase 8: Debt Prevention
+### Step 8: Debt Prevention
 
 #### Quality Gates
 ```yaml
@@ -399,7 +399,7 @@ function preCommitCheck() {
 }
 ```
 
-### Phase 9: Reporting
+### Step 9: Reporting
 
 ```markdown
 # Technical Debt Report

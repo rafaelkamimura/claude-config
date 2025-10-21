@@ -11,7 +11,7 @@ Comprehensive performance profiler that identifies bottlenecks, analyzes databas
 
 ## Workflow
 
-### Phase 1: Performance Target
+### Step 1: Performance Target
 1. **STOP** → "Select performance analysis type:"
    ```
    1. Application profiling - Overall performance
@@ -30,7 +30,7 @@ Comprehensive performance profiler that identifies bottlenecks, analyzes databas
    - STOP → "Include memory snapshots? (y/n):"
    - STOP → "Run under load? (y/n):"
 
-### Phase 2: Performance Profiling
+### Step 2: Performance Profiling
 
 #### Application Profiling
 ```bash
@@ -78,7 +78,7 @@ go tool pprof http://localhost:6060/debug/pprof/heap
 go tool pprof http://localhost:6060/debug/pprof/goroutine
 ```
 
-### Phase 3: Database Performance
+### Step 3: Database Performance
 
 #### Query Analysis
 ```sql
@@ -131,7 +131,7 @@ FROM pg_stat_user_indexes
 WHERE idx_scan = 0;
 ```
 
-### Phase 4: Memory Analysis
+### Step 4: Memory Analysis
 
 #### Memory Leak Detection
 ```javascript
@@ -195,7 +195,7 @@ function processData(id, data) {
 }
 ```
 
-### Phase 5: API Performance
+### Step 5: API Performance
 
 #### Endpoint Analysis
 ```javascript
@@ -238,7 +238,7 @@ async function getData() {
 }
 ```
 
-### Phase 6: Frontend Performance
+### Step 6: Frontend Performance
 
 #### Browser Metrics
 ```javascript
@@ -282,7 +282,7 @@ elements.forEach((el, i) => {
 });
 ```
 
-### Phase 7: Load Testing
+### Step 7: Load Testing
 
 #### Stress Testing
 ```bash
@@ -324,7 +324,7 @@ export default function() {
 }
 ```
 
-### Phase 8: Optimization Suggestions
+### Step 8: Optimization Suggestions
 
 #### Code Optimizations
 ```javascript
@@ -377,7 +377,7 @@ async function getCachedData(key, fetchFn) {
 }
 ```
 
-### Phase 9: Performance Report
+### Step 9: Performance Report
 
 ```markdown
 # Performance Analysis Report

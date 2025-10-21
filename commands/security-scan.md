@@ -9,65 +9,65 @@ Comprehensive security analysis tool that performs SAST/DAST scanning, dependenc
 - Verify license compliance
 - Generate security reports for merge requests
 
-## Workflow
+## Execution Steps
 
-### Phase 1: Scan Type Selection
-1. **STOP** → "Select security scan type:"
-   ```
-   1. Quick scan - Fast checks for critical issues
-   2. Full scan - Comprehensive security analysis
-   3. Secrets only - API keys, passwords, tokens
-   4. Dependencies only - Vulnerable packages
-   5. License check - Compliance verification
-   6. Custom scan - Select specific checks
-   
-   Choose type (1-6):
-   ```
+### Step 1: Select Scan Type
 
-2. **Scan Options**
-   - STOP → "Include SAST analysis? (y/n):"
-   - STOP → "Check container images? (y/n):"
-   - STOP → "Scan infrastructure code? (y/n):"
-   - STOP → "Generate SBOM? (y/n):"
+Output: "Select security scan type:
+1. Quick scan - Fast checks for critical issues
+2. Full scan - Comprehensive security analysis
+3. Secrets only - API keys, passwords, tokens
+4. Dependencies only - Vulnerable packages
+5. License check - Compliance verification
+6. Custom scan - Select specific checks
 
-### Phase 2: Environment Detection
-1. **Identify Technologies**
-   ```bash
-   # Detect languages and frameworks
-   languages=""
-   [ -f "package.json" ] && languages="$languages javascript"
-   [ -f "requirements.txt" ] && languages="$languages python"
-   [ -f "go.mod" ] && languages="$languages go"
-   [ -f "Cargo.toml" ] && languages="$languages rust"
-   [ -f "pom.xml" ] && languages="$languages java"
-   [ -f "Gemfile" ] && languages="$languages ruby"
-   [ -f "composer.json" ] && languages="$languages php"
-   ```
+Choose type (1-6):"
 
-2. **Check for Security Tools**
-   ```bash
-   # Check existing security configurations
-   [ -f ".semgrep.yml" ] && echo "Semgrep configured"
-   [ -f ".snyk" ] && echo "Snyk configured"
-   [ -f ".gitleaks.toml" ] && echo "Gitleaks configured"
-   ```
+WAIT for user's choice.
 
-### Phase 3: SAST Analysis
-1. **Run Semgrep Scan**
-   Use mcp__semgrep tools:
-   ```python
-   # Prepare files for scanning
-   code_files = []
-   for file in changed_files:
-       content = read_file(file)
-       code_files.append({
-           "filename": file,
-           "content": content
-       })
-   
-   # Run security scan
-   results = semgrep_scan(code_files, config="auto")
-   ```
+Output: "Include SAST analysis? (y/n):"
+WAIT for user's response.
+
+Output: "Check container images? (y/n):"
+WAIT for user's response.
+
+Output: "Scan infrastructure code? (y/n):"
+WAIT for user's response.
+
+Output: "Generate SBOM? (y/n):"
+WAIT for user's response.
+
+### Step 2: Detect Technologies
+
+Use Glob tool to identify project technologies:
+- Pattern: `package.json` (JavaScript)
+- Pattern: `requirements.txt` or `pyproject.toml` (Python)
+- Pattern: `go.mod` (Go)
+- Pattern: `Cargo.toml` (Rust)
+- Pattern: `pom.xml` or `build.gradle` (Java)
+- Pattern: `Gemfile` (Ruby)
+- Pattern: `composer.json` (PHP)
+
+Use Glob tool to check for existing security tool configurations:
+- Pattern: `.semgrep.yml`
+- Pattern: `.snyk`
+- Pattern: `.gitleaks.toml`
+
+### Step 3: Run SAST Analysis
+
+If user requested SAST analysis:
+
+1. Use Bash tool to get changed files:
+   - Command: `git diff --name-only HEAD`
+   - Description: "Get changed files for security scan"
+
+2. Use Read tool to read each changed file
+
+3. Use mcp__semgrep__semgrep_scan tool with file contents:
+   - Provide array of file objects with filename and content
+   - Use config="auto" for automatic rule detection
+
+4. Parse results for vulnerabilities
 
 2. **Common Vulnerability Patterns**
    - SQL Injection
@@ -93,7 +93,7 @@ Comprehensive security analysis tool that performs SAST/DAST scanning, dependenc
      severity: CRITICAL
    ```
 
-### Phase 4: Secret Detection
+### Step 4: Detect Secrets
 1. **Scan for Secrets**
    ```bash
    # Common secret patterns
@@ -134,7 +134,7 @@ Comprehensive security analysis tool that performs SAST/DAST scanning, dependenc
    const AWS_KEY = process.env.AWS_ACCESS_KEY_ID;
    ```
 
-### Phase 5: Dependency Scanning
+### Step 5: Scan Dependencies
 1. **Check Package Vulnerabilities**
    
    **JavaScript/Node.js:**
@@ -185,7 +185,7 @@ Comprehensive security analysis tool that performs SAST/DAST scanning, dependenc
    npm audit fix --force
    ```
 
-### Phase 6: License Compliance
+### Step 6: Check License Compliance
 1. **Scan Licenses**
    ```bash
    # Extract all licenses
@@ -226,7 +226,7 @@ Comprehensive security analysis tool that performs SAST/DAST scanning, dependenc
    | other-pkg | Unknown | Legal risk |
    ```
 
-### Phase 7: Container Security
+### Step 7: Scan Container Security
 1. **Scan Docker Images**
    ```bash
    # Scan with Trivy
@@ -255,7 +255,7 @@ Comprehensive security analysis tool that performs SAST/DAST scanning, dependenc
    - Sign images
    ```
 
-### Phase 8: Infrastructure as Code
+### Step 8: Scan Infrastructure as Code
 1. **Scan Terraform/CloudFormation**
    ```bash
    # Terraform
@@ -276,7 +276,7 @@ Comprehensive security analysis tool that performs SAST/DAST scanning, dependenc
      - Weak IAM policies
    ```
 
-### Phase 9: Security Report Generation
+### Step 9: Generate Security Report
 1. **Aggregate Results**
    ```markdown
    # Security Scan Report
@@ -337,9 +337,11 @@ Comprehensive security analysis tool that performs SAST/DAST scanning, dependenc
    }
    ```
 
-### Phase 10: Remediation
+### Step 10: Remediate Issues
 1. **Auto-Fix Options**
-   - STOP → "Auto-fix available issues? (y/n):"
+
+Output: "Auto-fix available issues? (y/n):"
+WAIT for user's response.
    
    **Safe Auto-Fixes:**
    - Update dependencies

@@ -9,120 +9,129 @@ Automated testing orchestrator that intelligently runs tests based on changed fi
 - Create missing tests using specialized agents
 - Ensure quality before commits
 
-## Workflow
+## Execution Steps
 
-### Phase 1: Test Discovery
-1. **Detect Test Framework**
-   ```bash
-   # Check for test frameworks
-   framework=""
-   [ -f "package.json" ] && grep -q "jest\|mocha\|vitest\|cypress" package.json && framework="js"
-   [ -f "pytest.ini" ] || [ -f "setup.cfg" ] && framework="python"
-   [ -f "go.mod" ] && framework="go"
-   [ -f "Cargo.toml" ] && framework="rust"
-   ```
+### Step 1: Detect Test Framework
 
-2. **Find Test Files**
-   ```bash
-   # Locate test files
-   find . -name "*.test.*" -o -name "*.spec.*" -o -name "*_test.*" | head -20
-   ```
+Use Bash tool to check for test frameworks:
+- Command: `[ -f "package.json" ] && cat package.json | grep -q "jest\|mocha\|vitest\|cypress" && echo "js" || echo ""`
+- Description: "Detect JavaScript test framework"
 
-3. **Analyze Changed Files**
-   ```bash
-   # Get modified files since last commit
-   git diff --name-only HEAD
-   git diff --staged --name-only
-   ```
+Use Glob tool to find test configuration files:
+- Pattern: `pytest.ini` or `setup.cfg` (Python)
+- Pattern: `go.mod` (Go)
+- Pattern: `Cargo.toml` (Rust)
 
-### Phase 2: Test Strategy Selection
-1. **STOP** → "Select test scope:"
-   ```
-   1. Changed files only - Test files related to modifications
-   2. Unit tests - Fast, isolated component tests
-   3. Integration tests - Component interaction tests
-   4. E2E tests - Full user workflow tests
-   5. Full suite - All available tests
-   6. Custom pattern - Specify test pattern
-   
-   Choose scope (1-6):
-   ```
+Use Glob tool to locate test files:
+- Pattern: `**/*.test.*` or `**/*.spec.*` or `**/*_test.*`
 
-2. **Test Options**
-   - STOP → "Enable coverage report? (y/n):"
-   - STOP → "Auto-fix simple failures? (y/n):"
-   - STOP → "Create missing tests? (y/n):"
-   - STOP → "Fail on coverage decrease? (y/n):"
+### Step 2: Analyze Changed Files
 
-### Phase 3: Test Execution
-1. **Run Tests by Framework**
-   
-   **JavaScript/TypeScript:**
-   ```bash
-   # Jest
-   npm test -- --coverage --watchAll=false
-   
-   # Vitest
-   npm run test -- --coverage --run
-   
-   # Mocha
-   npm test -- --reporter spec
-   
-   # Cypress (E2E)
-   npx cypress run
-   ```
-   
-   **Python:**
-   ```bash
-   # Pytest
-   pytest --cov=. --cov-report=html --cov-report=term
-   
-   # Unittest
-   python -m unittest discover
-   ```
-   
-   **Go:**
-   ```bash
-   go test -v -cover ./...
-   go test -race -coverprofile=coverage.out ./...
-   ```
-   
-   **Rust:**
-   ```bash
-   cargo test --all
-   cargo tarpaulin --out Html
-   ```
+Use Bash tool to get modified files:
+- Command: `git diff --name-only HEAD`
+- Description: "Get uncommitted changed files"
 
-2. **Capture Test Results**
-   - Parse test output
-   - Extract failed tests
-   - Calculate coverage metrics
-   - Identify flaky tests
+Use Bash tool to get staged files:
+- Command: `git diff --staged --name-only`
+- Description: "Get staged files"
 
-### Phase 4: Intelligent Test Analysis
-1. **Deploy Analysis Agents**
-   
-   **For Failed Tests:**
-   - **debugger**: Analyze failure reasons
-   - **test-automator**: Suggest fixes
-   
-   **For Missing Tests:**
-   - **test-automator**: Generate test cases
-   - **backend-architect**: Validate test logic
-   
-   **For Coverage Gaps:**
-   - **code-reviewer**: Identify critical uncovered code
-   - **test-automator**: Create coverage tests
+### Step 3: Select Test Strategy
 
-2. **Auto-Fix Attempts**
-   Common fixes:
-   - Update snapshots
-   - Fix import paths
-   - Update mocked data
-   - Adjust timeouts
-   - Fix async handling
+Output: "Select test scope:
+1. Changed files only - Test files related to modifications
+2. Unit tests - Fast, isolated component tests
+3. Integration tests - Component interaction tests
+4. E2E tests - Full user workflow tests
+5. Full suite - All available tests
+6. Custom pattern - Specify test pattern
 
-### Phase 5: Test Generation
+Choose scope (1-6):"
+
+WAIT for user's choice.
+
+Output: "Enable coverage report? (y/n):"
+WAIT for user's response.
+
+Output: "Auto-fix simple failures? (y/n):"
+WAIT for user's response.
+
+Output: "Create missing tests? (y/n):"
+WAIT for user's response.
+
+Output: "Fail on coverage decrease? (y/n):"
+WAIT for user's response.
+
+### Step 4: Execute Tests
+
+Run tests based on detected framework and user's scope choice.
+
+For JavaScript/TypeScript, use Bash tool:
+- Command: `npm test -- --coverage --watchAll=false` (Jest)
+- Or: `npm run test -- --coverage --run` (Vitest)
+- Or: `npm test -- --reporter spec` (Mocha)
+- Or: `npx cypress run` (E2E)
+- Description: "Run test suite with coverage"
+
+For Python, use Bash tool:
+- Command: `pytest --cov=. --cov-report=html --cov-report=term`
+- Or: `python -m unittest discover`
+- Description: "Run Python tests with coverage"
+
+For Go, use Bash tool:
+- Command: `go test -v -cover ./...`
+- Or: `go test -race -coverprofile=coverage.out ./...`
+- Description: "Run Go tests with coverage"
+
+For Rust, use Bash tool:
+- Command: `cargo test --all`
+- Or: `cargo tarpaulin --out Html`
+- Description: "Run Rust tests"
+
+Parse test output to extract:
+- Failed tests
+- Coverage metrics
+- Flaky tests
+
+### Step 5: Analyze Test Results with Agents
+
+If tests failed, use Task tool to launch agents for analysis:
+
+Use Task tool to launch 2 agents IN PARALLEL (single message with 2 Task tool invocations):
+
+1. Task tool call:
+   - subagent_type: "debugger"
+   - prompt: "Analyze these test failures and identify root causes: [test output]"
+
+2. Task tool call:
+   - subagent_type: "test-automator"
+   - prompt: "Suggest fixes for these failing tests: [test output]"
+
+Wait for both agents to complete.
+
+If user requested missing tests to be created:
+
+Use Task tool to launch 2 agents IN PARALLEL (single message with 2 Task tool invocations):
+
+1. Task tool call:
+   - subagent_type: "test-automator"
+   - prompt: "Generate test cases for this uncovered code: [code content]"
+
+2. Task tool call:
+   - subagent_type: "backend-architect"
+   - prompt: "Validate these test approaches for correctness: [proposed tests]"
+
+Wait for both agents to complete.
+
+### Step 6: Apply Auto-Fixes
+
+For common test failures, attempt auto-fixes:
+- Update snapshots if needed
+- Fix import paths
+- Update mocked data
+- Adjust timeouts
+- Fix async handling
+
+### Step 7: Generate Missing Tests
 If missing tests detected:
 
 1. **Analyze Untested Code**
@@ -156,9 +165,11 @@ If missing tests detected:
    ```
 
 3. **Review Generated Tests**
-   - STOP → "Review generated tests. Accept? (y/n/edit):"
 
-### Phase 6: Coverage Report
+Output: "Review generated tests above. Accept? (y/n/edit):"
+WAIT for user's response.
+
+### Step 8: Generate Coverage Report
 1. **Generate Visual Report**
    ```markdown
    ## Test Coverage Report
@@ -191,7 +202,7 @@ If missing tests detected:
    - Uncovered: 89-92 (error handling)
    ```
 
-### Phase 7: Quality Gates
+### Step 9: Check Quality Gates
 1. **Check Test Results**
    ```yaml
    quality_gates:
@@ -222,10 +233,15 @@ If missing tests detected:
    ```
 
 3. **Decision Point**
-   - STOP → "Tests failed. Options: (fix/ignore/debug):"
-   - If fix: Auto-fix or manual intervention
-   - If debug: Launch `/debug-assistant`
-   - If ignore: Document reason
+
+If tests failed:
+
+Output: "Tests failed. Options: (fix/ignore/debug):"
+WAIT for user's choice.
+
+If user chooses 'fix': Attempt auto-fix or provide manual fix suggestions
+If user chooses 'debug': Suggest running `/debug-assistant`
+If user chooses 'ignore': Ask for reason and document
 
 ## Test Patterns
 

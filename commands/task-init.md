@@ -15,9 +15,8 @@ Streamline task initialization by:
 
 Use Read tool to load these files (if they don't exist, continue without them):
 1. Read `./CLAUDE.md` (project-specific instructions)
-2. Read `/Users/nagawa/CLAUDE.md` (global instructions)
-3. Read `/Users/nagawa/.claude/CLAUDE.md` (local instructions)
-4. Read `./README.md` (project overview)
+2. Read `/Users/nagawa/.claude/CLAUDE.md` (global instructions)
+3. Read `./README.md` (project overview)
 
 Use Glob tool to find additional documentation:
 - Pattern: `*.md`

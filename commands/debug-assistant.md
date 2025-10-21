@@ -11,7 +11,7 @@ Advanced debugging assistant that analyzes errors, suggests fixes, traces root c
 
 ## Workflow
 
-### Phase 1: Error Input
+### Step 1: Error Input
 1. **STOP** → "How would you like to provide the error?"
    ```
    1. Paste error message/stack trace
@@ -28,7 +28,7 @@ Advanced debugging assistant that analyzes errors, suggests fixes, traces root c
    - STOP → "Is it reproducible? (always/sometimes/once):"
    - STOP → "What were you doing when it occurred?:"
 
-### Phase 2: Error Analysis
+### Step 2: Error Analysis
 1. **Parse Error Information**
    ```javascript
    // Extract key information
@@ -70,7 +70,7 @@ Advanced debugging assistant that analyzes errors, suggests fixes, traces root c
    - **test-automator**: Create reproduction test
    - **performance-engineer**: Performance-related issues
 
-### Phase 3: Root Cause Analysis
+### Step 3: Root Cause Analysis
 1. **Trace Error Source**
    ```bash
    # Git blame to find when introduced
@@ -104,7 +104,7 @@ Advanced debugging assistant that analyzes errors, suggests fixes, traces root c
    npm outdated
    ```
 
-### Phase 4: Solution Generation
+### Step 4: Solution Generation
 1. **Generate Fix Options**
    ```javascript
    // Option 1: Add null checks
@@ -145,7 +145,7 @@ Advanced debugging assistant that analyzes errors, suggests fixes, traces root c
    });
    ```
 
-### Phase 5: Debugging Environment Setup
+### Step 5: Debugging Environment Setup
 1. **Configure Debugger**
    ```json
    // .vscode/launch.json
@@ -181,7 +181,7 @@ Advanced debugging assistant that analyzes errors, suggests fixes, traces root c
    # VS Code attach
    ```
 
-### Phase 6: Reproduction Steps
+### Step 6: Reproduction Steps
 1. **Generate Minimal Reproduction**
    ```markdown
    ## Steps to Reproduce
@@ -217,7 +217,7 @@ Advanced debugging assistant that analyzes errors, suggests fixes, traces root c
    UserList({ users: problematicData });
    ```
 
-### Phase 7: Common Error Patterns
+### Step 7: Common Error Patterns
 
 #### JavaScript/TypeScript
 ```javascript
@@ -262,7 +262,7 @@ LOCK TABLE users IN SHARE ROW EXCLUSIVE MODE;
 CREATE INDEX idx_users_email ON users(email);
 ```
 
-### Phase 8: Performance Debugging
+### Step 8: Performance Debugging
 1. **Profile Performance**
    ```javascript
    console.time('operation');
@@ -286,7 +286,7 @@ CREATE INDEX idx_users_email ON users(email);
    performance.measure('operation', 'start', 'end');
    ```
 
-### Phase 9: Fix Verification
+### Step 9: Fix Verification
 1. **Test the Fix**
    ```bash
    # Run specific test
@@ -307,7 +307,7 @@ CREATE INDEX idx_users_email ON users(email);
    npm run test:firefox
    ```
 
-### Phase 10: Documentation
+### Step 10: Documentation
 ```markdown
 # Debug Report
 
