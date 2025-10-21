@@ -135,7 +135,7 @@ Analyze the database to identify:
 
 **7.1 Create JSON documentation:**
 
-Use Write tool to create: `/Users/nagawa/v2t/creadf/gefin-backend/schema_analysis_{DATABASE_NAME}.json`
+Use Write tool to create: `schema_analysis_{DATABASE_NAME}.json` in the project root directory.
 
 Structure:
 ```json
@@ -191,7 +191,7 @@ Structure:
 
 **7.2 Create Markdown documentation:**
 
-Use Write tool to create: `/Users/nagawa/v2t/creadf/gefin-backend/SCHEMA_{DATABASE_NAME}.md`
+Use Write tool to create: `SCHEMA_{DATABASE_NAME}.md` in the project root directory.
 
 Structure:
 ```markdown
@@ -406,7 +406,7 @@ User: Use mariadb-database-explorer skill with DATABASE_NAME="corporativo", OUTP
 - No data is modified or deleted
 - Password appears in process list briefly (use with caution on shared systems)
 - Large databases may take several minutes to analyze completely
-- Generated files are stored in gefin-backend project directory
+- Generated files are stored in the project root directory
 
 ## Integration with gefin-backend
 
