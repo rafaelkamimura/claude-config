@@ -121,6 +121,19 @@ If user approves:
 
 3. If task history file exists, append commit info using Edit tool
 
+### Step 9: Create Merge Request (Optional)
+
+Output: "Commit successful! Create a Merge Request / Pull Request? (y/n):"
+WAIT for user's response.
+
+If user says yes:
+
+Output: "Starting /mr-draft command..."
+
+Execute the `/mr-draft` slash command.
+
+If user says no, command complete.
+
 ## Smart Detection Rules
 
 ### File Pattern Matching

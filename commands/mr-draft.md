@@ -232,6 +232,48 @@ Use Bash tool to update gitignore:
 
 If user chooses 'discard': Exit without saving
 
+### Step 6: Create MR/PR (Optional)
+
+Output: "Create the Merge Request / Pull Request now? (y/n):"
+WAIT for user's response.
+
+If user says no, exit command.
+
+If user says yes:
+
+Output: "Choose your Git hosting platform:
+1. GitHub (gh CLI)
+2. GitLab (glab CLI)
+
+Choose platform (1 or 2):"
+WAIT for user's choice.
+
+If user chooses GitHub (1):
+
+Use Bash tool to check if gh CLI is installed:
+- Command: `which gh`
+- Description: "Check if gh CLI is installed"
+
+If not installed, output: "gh CLI not installed. Install with: brew install gh" and exit.
+
+Use Bash tool to create PR:
+- Command: `gh pr create --title "[MR title]" --body-file .claude/mr-drafts/[timestamp]-[branch].md`
+- Description: "Create GitHub Pull Request"
+
+If user chooses GitLab (2):
+
+Use Bash tool to check if glab CLI is installed:
+- Command: `which glab`
+- Description: "Check if glab CLI is installed"
+
+If not installed, output: "glab CLI not installed. Install with: brew install glab" and exit.
+
+Use Bash tool to create MR:
+- Command: `glab mr create --title "[MR title]" --description "$(cat .claude/mr-drafts/[timestamp]-[branch].md)"`
+- Description: "Create GitLab Merge Request"
+
+Output the MR/PR URL returned by the CLI tool.
+
 ## Smart Detection Features
 
 ### Functionality Detection
