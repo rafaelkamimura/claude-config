@@ -42,21 +42,60 @@ WAIT for user's next message containing their task description.
 
 CRITICAL: Use Task tool to launch ALL 4 agents IN PARALLEL (send a single message with 4 Task tool invocations):
 
+**DATABASE TOOL INSTRUCTIONS** - Include this at the start of EVERY agent prompt:
+
+```
+CRITICAL DATABASE INSTRUCTIONS:
+- For PostgreSQL queries: ALWAYS use mcp__postgres__query tool. NEVER use bash psql commands.
+- For MariaDB/MySQL queries: ALWAYS use mysql CLI via Bash tool with environment variables as documented in mariadb-database-explorer skill:
+  mysql -h "$MARIADB_HOST" -P "$MARIADB_PORT" -u "$MARIADB_USER" -p"$MARIADB_PASSWORD" {DATABASE_NAME} -e "YOUR_QUERY"
+- Load environment variables first: set -a && source .env && set +a
+- NEVER hardcode database credentials in commands
+```
+
 1. Task tool call:
    - subagent_type: "backend-architect"
-   - prompt: "Analyze the architectural implications and requirements for this task: [insert user's task here]. Identify architecture patterns, dependencies, and structural considerations."
+   - prompt: "CRITICAL DATABASE INSTRUCTIONS:
+   - For PostgreSQL queries: ALWAYS use mcp__postgres__query tool. NEVER use bash psql commands.
+   - For MariaDB/MySQL queries: ALWAYS use mysql CLI via Bash tool with environment variables:
+     mysql -h \"$MARIADB_HOST\" -P \"$MARIADB_PORT\" -u \"$MARIADB_USER\" -p\"$MARIADB_PASSWORD\" {DATABASE_NAME} -e \"YOUR_QUERY\"
+   - Load environment variables first: set -a && source .env && set +a
+   - NEVER hardcode database credentials in commands
+
+   Analyze the architectural implications and requirements for this task: [insert user's task here]. Identify architecture patterns, dependencies, and structural considerations."
 
 2. Task tool call:
    - subagent_type: "test-automator"
-   - prompt: "Identify comprehensive testing requirements for this task: [insert user's task here]. Specify what unit tests, integration tests, and E2E tests are needed."
+   - prompt: "CRITICAL DATABASE INSTRUCTIONS:
+   - For PostgreSQL queries: ALWAYS use mcp__postgres__query tool. NEVER use bash psql commands.
+   - For MariaDB/MySQL queries: ALWAYS use mysql CLI via Bash tool with environment variables:
+     mysql -h \"$MARIADB_HOST\" -P \"$MARIADB_PORT\" -u \"$MARIADB_USER\" -p\"$MARIADB_PASSWORD\" {DATABASE_NAME} -e \"YOUR_QUERY\"
+   - Load environment variables first: set -a && source .env && set +a
+   - NEVER hardcode database credentials in commands
+
+   Identify comprehensive testing requirements for this task: [insert user's task here]. Specify what unit tests, integration tests, and E2E tests are needed."
 
 3. Task tool call:
    - subagent_type: "code-reviewer"
-   - prompt: "Review this task description for completeness and clarity: [insert user's task here]. Identify what additional details or considerations should be included."
+   - prompt: "CRITICAL DATABASE INSTRUCTIONS:
+   - For PostgreSQL queries: ALWAYS use mcp__postgres__query tool. NEVER use bash psql commands.
+   - For MariaDB/MySQL queries: ALWAYS use mysql CLI via Bash tool with environment variables:
+     mysql -h \"$MARIADB_HOST\" -P \"$MARIADB_PORT\" -u \"$MARIADB_USER\" -p\"$MARIADB_PASSWORD\" {DATABASE_NAME} -e \"YOUR_QUERY\"
+   - Load environment variables first: set -a && source .env && set +a
+   - NEVER hardcode database credentials in commands
+
+   Review this task description for completeness and clarity: [insert user's task here]. Identify what additional details or considerations should be included."
 
 4. Task tool call:
    - subagent_type: "security-auditor"
-   - prompt: "Identify security considerations and requirements for this task: [insert user's task here]. Specify what security measures, validations, or checks are needed."
+   - prompt: "CRITICAL DATABASE INSTRUCTIONS:
+   - For PostgreSQL queries: ALWAYS use mcp__postgres__query tool. NEVER use bash psql commands.
+   - For MariaDB/MySQL queries: ALWAYS use mysql CLI via Bash tool with environment variables:
+     mysql -h \"$MARIADB_HOST\" -P \"$MARIADB_PORT\" -u \"$MARIADB_USER\" -p\"$MARIADB_PASSWORD\" {DATABASE_NAME} -e \"YOUR_QUERY\"
+   - Load environment variables first: set -a && source .env && set +a
+   - NEVER hardcode database credentials in commands
+
+   Identify security considerations and requirements for this task: [insert user's task here]. Specify what security measures, validations, or checks are needed."
 
 Wait for all 4 agents to complete before proceeding.
 
@@ -159,7 +198,15 @@ Starting execution with optimized prompt...
 
 Execute the optimized prompt by:
 1. Mark the first todo item as "in_progress" using TodoWrite
-2. Use appropriate specialized agents as needed (via Task tool)
+2. Use appropriate specialized agents as needed (via Task tool) - ALWAYS include database instructions in agent prompts:
+   ```
+   CRITICAL DATABASE INSTRUCTIONS:
+   - For PostgreSQL queries: ALWAYS use mcp__postgres__query tool. NEVER use bash psql commands.
+   - For MariaDB/MySQL queries: ALWAYS use mysql CLI via Bash tool with environment variables:
+     mysql -h "$MARIADB_HOST" -P "$MARIADB_PORT" -u "$MARIADB_USER" -p"$MARIADB_PASSWORD" {DATABASE_NAME} -e "YOUR_QUERY"
+   - Load environment variables first: set -a && source .env && set +a
+   - NEVER hardcode database credentials in commands
+   ```
 3. Update todo status as you complete each item using TodoWrite
 4. Run validation checks from success criteria
 5. Follow the testing requirements specified
@@ -191,3 +238,6 @@ If no git repository exists:
 - Optimized prompts improve task success rate by including all considerations upfront
 - Always use TodoWrite to track progress through implementation
 - Context is loaded fresh each time to ensure accuracy
+- **Database Tool Guidance**: Subagents launched via Task tool must receive explicit database tool instructions because they may not inherit MCP tool access from the main session. Always include the database instructions block in agent prompts.
+- **PostgreSQL**: Use mcp__postgres__query MCP tool (NEVER bash psql)
+- **MariaDB/MySQL**: Use mysql CLI via Bash tool with environment variables as documented in mariadb-database-explorer skill
