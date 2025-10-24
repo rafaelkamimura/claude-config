@@ -268,11 +268,23 @@ Use Bash tool to check if glab CLI is installed:
 
 If not installed, output: "glab CLI not installed. Install with: brew install glab" and exit.
 
-Use Bash tool to create MR:
-- Command: `glab mr create --title "[MR title]" --description "$(cat .claude/mr-drafts/[timestamp]-[branch].md)"`
-- Description: "Create GitLab Merge Request"
+Use Bash tool to check if glapi function exists in zsh:
+- Command: `zsh -c "source ~/.zshrc 2>/dev/null; type glapi" 2>/dev/null`
+- Description: "Check if glapi zsh function is available"
 
-Output the MR/PR URL returned by the CLI tool.
+If glapi function is available:
+
+Use Bash tool to create MR using glapi:
+- Command: `zsh -c "source ~/.zshrc 2>/dev/null; glapi /merge_requests --method POST --field source_branch=[branch] --field target_branch=[base_branch] --field title='[MR title]' --field description=\"\$(cat .claude/mr-drafts/[timestamp]-[branch].md)\" --field remove_source_branch=true --field squash=true"`
+- Description: "Create GitLab Merge Request via glapi"
+
+If glapi function is NOT available:
+
+Use Bash tool to create MR using glab CLI:
+- Command: `glab mr create --title "[MR title]" --description "$(cat .claude/mr-drafts/[timestamp]-[branch].md)"`
+- Description: "Create GitLab Merge Request via glab CLI"
+
+Output the MR/PR URL returned by the CLI tool or API.
 
 ## Smart Detection Features
 
